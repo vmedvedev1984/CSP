@@ -1,0 +1,21 @@
+{"config" : [
+
+
+		{"name": 1, "seqence": 2},
+		
+		{"VolOneBase": 0.080, "DeadVol": 0.5, "Amd": 1.5, "MeCN": 20.0},
+ 		
+		{"VolOneBase": 0.060, "DeadVol": 5.0, "THF": 830.0, "Py": 150.0, "H2O": 20.0, "I2": 5.0},
+
+		{"VolOneBase": 0.100, "DeadVol": 5.0, "MeCN": 500.0, "TET": 29.25},
+
+		{"VolOneBase": 0.170, "DeadVol": 5.0, "DCE": 970.0, "DCA": 30.0},
+
+		{"VolOneBase": 0.110, "DeadVol": 5.0, "THF": 750.0, "Anhydride": 150.0, "Py": 100.0},
+
+		{"VolOneBase": 0.110, "DeadVol": 5.0, "THF": 840.0, "MeIm": 160.0},
+
+		{"VolOneBase": 0.100, "DeadVol": 5.0, "MeCN": 500.0, "DCI": 14.76}
+	     ]
+		
+}
