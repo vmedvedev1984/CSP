@@ -7,19 +7,6 @@ from openpyxl import Workbook, load_workbook
 from docxtpl import DocxTemplate
 import io, os, time, fnmatch, csv, datetime, json
 
-class popupwin():
-    def __init__(self):
-        self.text = ""
-        self.title = ""
-    
-    def win(self, text, title):
-        infoBox = QMessageBox()
-        infoBox.setIcon(QMessageBox.Information)
-        infoBox.setText(text)
-        infoBox.setWindowTitle(title)
-        infoBox.setStandardButtons(QMessageBox.Ok)
-        infoBox.exec_()
-
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
         QtWidgets.QWidget.__init__(self)
@@ -86,70 +73,33 @@ class Window(QtWidgets.QMainWindow):
                     'DCE_Dbl' : str(round(float(((Mon_All*self.data['config'][4]['VolOneBase'])+self.data['config'][4]['DeadVol'])*(self.data['config'][4]['DCE']/(self.data['config'][4]['DCE']+self.data['config'][4]['DCA']))),5)) + ' мл',
                     'DCA_Dbl' : str(round(float(((Mon_All*self.data['config'][4]['VolOneBase'])+self.data['config'][4]['DeadVol'])*(self.data['config'][4]['DCA']/(self.data['config'][4]['DCE']+self.data['config'][4]['DCA']))),5)) + ' мл',
                     'V_Dbl' : str(round(float((Mon_All*self.data['config'][4]['VolOneBase'])+self.data['config'][4]['DeadVol']),5)) + ' мл',
-                    'THF_CPA' : str(round(float(((Mon_All*self.data['config'][5]['VolOneBase'])+self.data['config'][5]['DeadVol'])*(self.data['config'][5]['THF']/(self.data['config'][5]['THF']+self.data['config'][5]['Anhydride']+self.data['config'][5]['Py']))),5)) + ' мл',
-                    'ANH_CPA' : str(round(float(((Mon_All*self.data['config'][5]['VolOneBase'])+self.data['config'][5]['DeadVol'])*(self.data['config'][5]['Anhydride']/(self.data['config'][5]['THF']+self.data['config'][5]['Anhydride']+self.data['config'][5]['Py']))),5)) + ' мл',
-                    'Py_CPA' : str(round(float(((Mon_All*self.data['config'][5]['VolOneBase'])+self.data['config'][5]['DeadVol'])*(self.data['config'][5]['Py']/(self.data['config'][5]['THF']+self.data['config'][5]['Anhydride']+self.data['config'][5]['Py']))),5)) + ' мл',
+                    'THF_CPA' : str(round(float(((Mon_All*self.data['config'][5]['VolOneBase'])+self.data['config'][5]['DeadVol'])*(self.data['config'][5]['THF']/(self.data['config'][5]['THF']+self.data['config'][5]['Anhydride']))),5)) + ' мл',
+                    'ANH_CPA' : str(round(float(((Mon_All*self.data['config'][5]['VolOneBase'])+self.data['config'][5]['DeadVol'])*(self.data['config'][5]['Anhydride']/(self.data['config'][5]['THF']+self.data['config'][5]['Anhydride']))),5)) + ' мл',
                     'V_CPA' : str(round(float((Mon_All*self.data['config'][5]['VolOneBase'])+self.data['config'][5]['DeadVol']),5)) + ' мл',
-                    'THF_CPB' : str(round(float(((Mon_All*self.data['config'][6]['VolOneBase'])+self.data['config'][6]['DeadVol'])*(self.data['config'][6]['THF']/(self.data['config'][6]['THF']+self.data['config'][6]['MeIm']))),5)) + ' мл',
-                    'MeIm_CPB' : str(round(float(((Mon_All*self.data['config'][6]['VolOneBase'])+self.data['config'][6]['DeadVol'])*(self.data['config'][6]['MeIm']/(self.data['config'][6]['THF']+self.data['config'][6]['MeIm']))),5)) + ' мл',
+                    'MeCN_CPB' : str(round(float(((Mon_All*self.data['config'][6]['VolOneBase'])+self.data['config'][6]['DeadVol'])*(self.data['config'][6]['THF']/(self.data['config'][6]['THF']+self.data['config'][6]['MeIm']+self.data['config'][6]['Py']))),5)) + ' мл',
+                    'MeIm_CPB' : str(round(float(((Mon_All*self.data['config'][6]['VolOneBase'])+self.data['config'][6]['DeadVol'])*(self.data['config'][6]['MeIm']/(self.data['config'][6]['THF']+self.data['config'][6]['MeIm']+self.data['config'][6]['Py']))),5)) + ' мл',
+                    'Py_CPB' : str(round(float(((Mon_All*self.data['config'][6]['VolOneBase'])+self.data['config'][6]['DeadVol'])*(self.data['config'][6]['Py']/(self.data['config'][6]['THF']+self.data['config'][6]['MeIm']+self.data['config'][6]['Py']))),5)) + ' мл',
                     'V_CPB' : str(round(float((Mon_All*self.data['config'][6]['VolOneBase'])+self.data['config'][6]['DeadVol']),5)) + ' мл',
                     'DCI_Act' : str(round(float(((Mon_All*self.data['config'][7]['VolOneBase'])+self.data['config'][7]['DeadVol'])*(self.data['config'][7]['DCI']/self.data['config'][7]['MeCN'])),5)) + ' г',
                     'TET_Act_1' : True if self.comboBox_2.currentText() == 'ETT' else False,
                     'DCI_Act_1' : True if self.comboBox_2.currentText() == 'DCI' else False,
-                    eval('olig_name_' + str(olig_num) : str(self.tableWidget.item(olig_num, 0).text() if self.tableWidget.item(olig_num, 0) != None else '')) for olig_num in range(12)),
-                    'olig_seq_1' : str(self.tableWidget.item(0, 1).text() if self.tableWidget.item(0, 1) != None else ''),
-                    'olig_seq_2' : str(self.tableWidget.item(1, 1).text() if self.tableWidget.item(1, 1) != None else ''),
-                    'olig_seq_3' : str(self.tableWidget.item(2, 1).text() if self.tableWidget.item(2, 1) != None else ''),
-                    'olig_seq_4' : str(self.tableWidget.item(3, 1).text() if self.tableWidget.item(3, 1) != None else ''),
-                    'olig_seq_5' : str(self.tableWidget.item(4, 1).text() if self.tableWidget.item(4, 1) != None else ''),
-                    'olig_seq_6' : str(self.tableWidget.item(5, 1).text() if self.tableWidget.item(5, 1) != None else ''),
-                    'olig_seq_7' : str(self.tableWidget.item(6, 1).text() if self.tableWidget.item(6, 1) != None else ''),
-                    'olig_seq_8' : str(self.tableWidget.item(7, 1).text() if self.tableWidget.item(7, 1) != None else ''),
-                    'olig_seq_9' : str(self.tableWidget.item(8, 1).text() if self.tableWidget.item(8, 1) != None else ''),
-                    'olig_seq_10' : str(self.tableWidget.item(9, 1).text() if self.tableWidget.item(9, 1) != None else ''),
-                    'olig_seq_11' : str(self.tableWidget.item(10, 1).text() if self.tableWidget.item(10, 1) != None else ''),
-                    'olig_seq_12' : str(self.tableWidget.item(11, 1).text() if self.tableWidget.item(11, 1) != None else ''),
-                    'ol_n_1' : str(self.tableWidget.item(0, 2).text() if self.tableWidget.item(0, 2) != None else ''),
-                    'ol_n_2' : str(self.tableWidget.item(1, 2).text() if self.tableWidget.item(1, 2) != None else ''),
-                    'ol_n_3' : str(self.tableWidget.item(2, 2).text() if self.tableWidget.item(2, 2) != None else ''),
-                    'ol_n_4' : str(self.tableWidget.item(3, 2).text() if self.tableWidget.item(3, 2) != None else ''),
-                    'ol_n_5' : str(self.tableWidget.item(4, 2).text() if self.tableWidget.item(4, 2) != None else ''),
-                    'ol_n_6' : str(self.tableWidget.item(5, 2).text() if self.tableWidget.item(5, 2) != None else ''),
-                    'ol_n_7' : str(self.tableWidget.item(6, 2).text() if self.tableWidget.item(6, 2) != None else ''),
-                    'ol_n_8' : str(self.tableWidget.item(7, 2).text() if self.tableWidget.item(7, 2) != None else ''),
-                    'ol_n_9' : str(self.tableWidget.item(8, 2).text() if self.tableWidget.item(8, 2) != None else ''),
-                    'ol_n_10' : str(self.tableWidget.item(9, 2).text() if self.tableWidget.item(9, 2) != None else ''),
-                    'ol_n_11' : str(self.tableWidget.item(10, 2).text() if self.tableWidget.item(10, 2) != None else ''),
-                    'ol_n_12' : str(self.tableWidget.item(11, 2).text() if self.tableWidget.item(11, 2) != None else ''),
                     'month' : str(datetime.date.today()).split('-')[1],
                     'day' : str(datetime.date.today()).split('-')[2],
         }
+        context.update({'oligos': [{'num' : str(y+1),
+                                    'name' : str(self.tableWidget.item(y, 0).text() if self.tableWidget.item(y, 0) != None else ''),
+                                    'seq' : str(self.tableWidget.item(y, 1).text() if self.tableWidget.item(y, 1) != None else ''),
+                                    'base' : str(self.tableWidget.item(y, 2).text() if self.tableWidget.item(y, 2) != None else '')}  for y in range(len(self.fastalist))]})
         doc = DocxTemplate("protocol_template.docx")
         doc.render(context)
         doc.save("./protocols/Протокол синтеза олигонуклеотидов " + str(datetime.date.today()) + ".docx")
-        # всплывающие окно информации о сборке файла протокола синтеза
-        self.popupwin("Протокол синтеза готов", "Информация")
+        self.popupwin("Протокол синтеза готов", "Информация")      # всплывающие окно информации о сборке файла протокола синтеза
         #состояние CheckBox-ов DMT-On
         '''for dmt_check in range(len(self.fastalist)):
-            print(int(self.tableWidget.cellWidget(dmt_check, 7).checkState()))
-            
-            'olig_name_1' : str(self.tableWidget.item(0, 0).text() if self.tableWidget.item(0, 0) != None else ''),
-                    'olig_name_2' : str(self.tableWidget.item(1, 0).text() if self.tableWidget.item(1, 0) != None else ''),
-                    'olig_name_3' : str(self.tableWidget.item(2, 0).text() if self.tableWidget.item(2, 0) != None else ''),
-                    'olig_name_4' : str(self.tableWidget.item(3, 0).text() if self.tableWidget.item(3, 0) != None else ''),
-                    'olig_name_5' : str(self.tableWidget.item(4, 0).text() if self.tableWidget.item(4, 0) != None else ''),
-                    'olig_name_6' : str(self.tableWidget.item(5, 0).text() if self.tableWidget.item(5, 0) != None else ''),
-                    'olig_name_7' : str(self.tableWidget.item(6, 0).text() if self.tableWidget.item(6, 0) != None else ''),
-                    'olig_name_8' : str(self.tableWidget.item(7, 0).text() if self.tableWidget.item(7, 0) != None else ''),
-                    'olig_name_9' : str(self.tableWidget.item(8, 0).text() if self.tableWidget.item(8, 0) != None else ''),
-                    'olig_name_10' : str(self.tableWidget.item(9, 0).text() if self.tableWidget.item(9, 0) != None else ''),
-                    'olig_name_11' : str(self.tableWidget.item(10, 0).text() if self.tableWidget.item(10, 0) != None else ''),
-                    'olig_name_12' : str(self.tableWidget.item(11, 0).text() if self.tableWidget.item(11, 0) != None else ''),
-            
-            '''
-            
+            print(int(self.tableWidget.cellWidget(dmt_check, 7).checkState()))'''
+           
 
-
+    # ЗАГРУЗКА ЭКСЕЛЬ ФАЙЛА ВО ВКЛАДКЕ ПОСТООБРАБОТКИ
     def postprocXLS(self):
         self.XLSdir = QFileDialog.getOpenFileName(None, 'Open File', './synthes/', "Excel Files (*.xlsx)")
         if self.XLSdir[0][-4:] == 'xlsx':
@@ -171,20 +121,27 @@ class Window(QtWidgets.QMainWindow):
             self.tableWidget_2.setItem(row, 1, QtWidgets.QTableWidgetItem(XLSopen[2*row + 3]))
         self.tableWidget_2.resizeColumnsToContents()
         
-
+    # ЗАПОЛНЕНИЕ (РЕДАКТИРОВАНИЕ) ЭКСЕЛЬ ФАЙЛА ПРОТОКОЛА
     def postXLSedit(self):
         wbCSV = load_workbook(filename = self.XLSdir[0])
         sheet_ranges = wbCSV['Sheet']
         sheet_ranges.cell(row = 1, column = 8).value = "C, ng/ul"
         sheet_ranges.cell(row = 1, column = 9).value = "Add Water, ul"    
         for tab_r in range(len(sheet_ranges['A'])-1):
-            sheet_ranges.cell(row = tab_r + 2, column = 8).value = self.tableWidget_2.item(tab_r, 2).text()
-            sheet_ranges.cell(row = tab_r + 2, column = 9).value = (((float(self.tableWidget_2.item(tab_r, 2).text().replace(",", "."))) / float(sheet_ranges.cell(row = tab_r + 2, column = 4).value.replace(",", ".")))*1000)-100
-            self.tableWidget_2.setItem(tab_r, 3, QtWidgets.QTableWidgetItem(str(sheet_ranges.cell(row = tab_r + 2, column = 9).value)))
+            try:
+                sheet_ranges.cell(row = tab_r + 2, column = 8).value = self.tableWidget_2.item(tab_r, 2).text() if self.tableWidget_2.item(tab_r, 2).text() != None else ''
+                sheet_ranges.cell(row = tab_r + 2, column = 9).value = (((float(self.tableWidget_2.item(tab_r, 2).text().replace(",", "."))) / float(sheet_ranges.cell(row = tab_r + 2, column = 4).value.replace(",", ".")))*1000)-100 if self.tableWidget_2.item(tab_r, 2).text() != None else 0
+                self.tableWidget_2.setItem(tab_r, 3, QtWidgets.QTableWidgetItem(str(sheet_ranges.cell(row = tab_r + 2, column = 9).value)))
+            except ValueError:
+                self.popupwin("Заполните все ячейки концентрации числами", 'Ошибка')
+                return 0
+            except AttributeError:
+                self.popupwin("Заполните все ячейки концентрации числами", 'Ошибка')
+                return 0
         wbCSV.save(self.XLSdir[0])
         self.popupwin("Рабочий файл дополнен", "Информация")
 
-
+    # ОТКРЫТИЕ ФАЙЛА ЗАКАЗА FASTA ИЛИ CSV И ВЫЧИСЛЕНИЕ И ФОРМИРОВАНИЕ ТАБЛИЦ НА ВКЛАДКЕ СИНТЕЗА
     def prepFa(self):
         self.fastadir = QFileDialog.getOpenFileName(None, 'Open File', './', "Fasta (*.fa *.fasta);;CSV Files (*.csv)")
         self.textEdit.setText(self.fastadir[0])
@@ -219,7 +176,7 @@ class Window(QtWidgets.QMainWindow):
                 i=i+1
             else:
                 self.fastalist.append(fastaopen[i])
-                #-------Coef.Ext---------
+                #-------РАССЧЁТ КОЭФИЦИЕНТА ЭКСТИНКЦИИ ---------
                 item_seq_ext = 0
                 MW = 0
                 GC = 0
@@ -309,7 +266,7 @@ class Window(QtWidgets.QMainWindow):
                 leight = A + T + C + G
                 lenght_item.append(leight)
                 i=i+1
-
+        # ЗАПОЛНЕНИЕ ТАБЛИЦЫ И ЗНАЧЕНИЙ КОЛИЧЕСТВА АМИДИТОВ НА ВЛАДКЕ СИНТЕЗА
         for row in range(len(self.fastalist)):
             self.tableWidget.insertRow(row)
             self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(fastalistname[row][1:]))
