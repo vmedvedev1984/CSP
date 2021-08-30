@@ -6,6 +6,60 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox, QCheckBox
 from openpyxl import Workbook, load_workbook
 from docxtpl import DocxTemplate
 import io, os, time, fnmatch, csv, datetime, json
+from os import walk
+
+ConfFileDialog = uic.loadUiType("conffile.ui")[0]
+print(ConfFileDialog)
+
+class QDialogClass(QtWidgets.QDialog, ConfFileDialog):
+    def __init__(self, parent=None):
+        QtWidgets.QDialog.__init__(self, parent)
+        self.setupUi(self)
+        with open('config.txt') as json_file:  
+            self.data = json.load(json_file)
+        self.LoadDefault()
+        self.pushButton_5.clicked.connect(self.LoadDefault)
+
+    def LoadDefault(self):
+        #Amidite
+        self.doubleSpinBox.setValue(self.data['config'][1]['VolOneBase'])
+        self.doubleSpinBox_7.setValue(self.data['config'][1]['DeadVol'])
+        self.doubleSpinBox_38.setValue(self.data['config'][1]['MeCN'])
+        self.doubleSpinBox_13.setValue(self.data['config'][1]['Amd'])
+        #Oxidizer
+        self.doubleSpinBox_6.setValue(self.data['config'][2]['VolOneBase'])
+        self.doubleSpinBox_42.setValue(self.data['config'][2]['DeadVol'])
+        self.doubleSpinBox_24.setValue(self.data['config'][2]['THF'])
+        self.doubleSpinBox_25.setValue(self.data['config'][2]['Py'])
+        self.doubleSpinBox_26.setValue(self.data['config'][2]['H2O'])
+        self.doubleSpinBox_41.setValue(self.data['config'][2]['I2'])
+        #Activator
+        self.doubleSpinBox_2.setValue(self.data['config'][3]['VolOneBase'])
+        self.doubleSpinBox_8.setValue(self.data['config'][3]['DeadVol'])
+        self.doubleSpinBox_40.setValue(self.data['config'][3]['MeCN'])
+        self.doubleSpinBox_14.setValue(self.data['config'][3]['TET'])
+        #Deblock
+        self.doubleSpinBox_3.setValue(self.data['config'][4]['VolOneBase'])
+        self.doubleSpinBox_9.setValue(self.data['config'][4]['DeadVol'])
+        self.doubleSpinBox_11.setValue(self.data['config'][4]['DCE'])
+        self.doubleSpinBox_12.setValue(self.data['config'][4]['DCA'])
+        #CapA
+        self.doubleSpinBox_4.setValue(self.data['config'][5]['VolOneBase'])
+        self.doubleSpinBox_10.setValue(self.data['config'][5]['DeadVol'])
+        self.doubleSpinBox_15.setValue(self.data['config'][5]['THF'])
+        self.doubleSpinBox_16.setValue(self.data['config'][5]['Anhydride'])
+        #CapB
+        self.doubleSpinBox_5.setValue(self.data['config'][6]['VolOneBase'])
+        self.doubleSpinBox_39.setValue(self.data['config'][6]['DeadVol'])
+        self.doubleSpinBox_19.setValue(self.data['config'][6]['THF'])
+        self.doubleSpinBox_20.setValue(self.data['config'][6]['MeIm'])
+        self.doubleSpinBox_21.setValue(self.data['config'][6]['Py'])
+    
+    def RejectButton(self):
+        print('Reject')
+
+    def AceptButton(self):
+        print(self.data['config'][1]['VolOneBase'])
 
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
@@ -24,6 +78,7 @@ class Window(QtWidgets.QMainWindow):
         self.pushButton_2.clicked.connect(self.postXLSedit)
         #self.pushButton.clicked.connect(self.stat)
         self.tabWidget.setCurrentIndex(0)
+        self.action_3.triggered.connect(self.conf_file_menu)
 
     def popupwin(self, text, title):
         infoBox = QMessageBox()
@@ -33,25 +88,44 @@ class Window(QtWidgets.QMainWindow):
         infoBox.setStandardButtons(QMessageBox.Ok)
         infoBox.exec_()        
 
+    def conf_file_menu(self):
+        dialog = QDialogClass()
+        dialog.exec_()
+        
     def stat(self):
-        self.totemplate()
-        wb = Workbook()
-        #wb = openpyxl.load_workbook(filename = './template.xlsx')
-        sheet = wb.active
-        wb_first_row = ['Name', 'Sequence', 'Lenght', 'M.W.', 'Coef.Ext.', 'GC%', 'ug/OD250']
-        for tab_colm in range(len(wb_first_row)):
-            sheet.cell(row=1, column=tab_colm + 1).value = wb_first_row[tab_colm]
-        for tab_row in range(2, len(self.fastalist) + 2):
-            sheet.cell(row = tab_row, column = 1).value = self.tableWidget.item(tab_row - 2, 0).text()
-            sheet.cell(row = tab_row, column = 2).value = self.tableWidget.item(tab_row - 2, 1).text()
-            sheet.cell(row = tab_row, column = 3).value = int(self.tableWidget.item(tab_row - 2, 2).text())
-            sheet.cell(row = tab_row, column = 4).value = self.tableWidget.item(tab_row - 2, 3).text().replace(".", ",")
-            sheet.cell(row = tab_row, column = 5).value = self.tableWidget.item(tab_row - 2, 4).text()
-            sheet.cell(row = tab_row, column = 6).value = self.tableWidget.item(tab_row - 2, 5).text().replace(".", ",")
-            sheet.cell(row = tab_row, column = 7).value = self.tableWidget.item(tab_row - 2, 6).text().replace(".", ",")
-        wb.save('./synthes/synthesis ' + str(datetime.date.today()) + '.xlsx')
-        
-        
+        try:
+            self.totemplate()
+            wb = Workbook()
+            #wb = openpyxl.load_workbook(filename = './template.xlsx')
+            sheet = wb.active
+            wb_first_row = ['Name', 'Sequence', 'Lenght', 'M.W.', 'Coef.Ext.', 'GC%', 'ug/OD250']
+            for tab_colm in range(len(wb_first_row)):
+                sheet.cell(row=1, column=tab_colm + 1).value = wb_first_row[tab_colm]
+            for tab_row in range(2, len(self.fastalist) + 2):
+                sheet.cell(row = tab_row, column = 1).value = self.tableWidget.item(tab_row - 2, 0).text()
+                sheet.cell(row = tab_row, column = 2).value = self.tableWidget.item(tab_row - 2, 1).text()
+                sheet.cell(row = tab_row, column = 3).value = int(self.tableWidget.item(tab_row - 2, 2).text())
+                sheet.cell(row = tab_row, column = 4).value = self.tableWidget.item(tab_row - 2, 3).text().replace(".", ",")
+                sheet.cell(row = tab_row, column = 5).value = self.tableWidget.item(tab_row - 2, 4).text()
+                sheet.cell(row = tab_row, column = 6).value = self.tableWidget.item(tab_row - 2, 5).text().replace(".", ",")
+                sheet.cell(row = tab_row, column = 7).value = self.tableWidget.item(tab_row - 2, 6).text().replace(".", ",")
+            wb.save('./synthes/synthesis ' + str(datetime.date.today()) + '.xlsx')
+            self.popupwin("Протокол синтеза готов", "Информация")
+            '''if self.checkBox_3.isChecked():
+                wb.save('./synthes/synthesis ' + str(datetime.date.today()) + '.xlsx')
+            else:
+                filenames = next(walk('./synthes/'), (None, None, []))[2]
+                if(filenames[-1][9:-5]==str(datetime.date.today())):
+                    wb.save('./synthes/synthesis ' + str(datetime.date.today()) + '-1.xlsx')
+                else:
+                    wb.save('./synthes/synthesis ' + str(datetime.date.today()) + '-' + str(int(filenames[-1][-6])+1) + '.xlsx')
+                print(filenames)'''
+        except ValueError:
+                self.popupwin("Выберете файл с последовательностями олигонуклеотидов", 'Ошибка')
+                return 0
+        except AttributeError:
+                self.popupwin("Выберете файл с последовательностями олигонуклеотидов", 'Ошибка')
+                return 0    
     
     def totemplate(self):
         Mon_All = int(self.label_A_val.text())+int(self.label_C_val.text())+int(self.label_G_val.text())+int(self.label_T_val.text())
@@ -93,7 +167,6 @@ class Window(QtWidgets.QMainWindow):
         doc = DocxTemplate("protocol_template.docx")
         doc.render(context)
         doc.save("./protocols/Протокол синтеза олигонуклеотидов " + str(datetime.date.today()) + ".docx")
-        self.popupwin("Протокол синтеза готов", "Информация")      # всплывающие окно информации о сборке файла протокола синтеза
         #состояние CheckBox-ов DMT-On
         '''for dmt_check in range(len(self.fastalist)):
             print(int(self.tableWidget.cellWidget(dmt_check, 7).checkState()))'''
@@ -266,6 +339,7 @@ class Window(QtWidgets.QMainWindow):
                 leight = A + T + C + G
                 lenght_item.append(leight)
                 i=i+1
+        print(self.fastalist)
         # ЗАПОЛНЕНИЕ ТАБЛИЦЫ И ЗНАЧЕНИЙ КОЛИЧЕСТВА АМИДИТОВ НА ВЛАДКЕ СИНТЕЗА
         for row in range(len(self.fastalist)):
             self.tableWidget.insertRow(row)
@@ -283,6 +357,8 @@ class Window(QtWidgets.QMainWindow):
             self.label_C_val.setText(str(dC))
             self.label_G_val.setText(str(dG))
             self.label_T_val.setText(str(dT))
+        
+        
         
         
 
