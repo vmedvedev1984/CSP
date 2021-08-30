@@ -15,7 +15,9 @@
 
 		{"VolOneBase": 0.110, "DeadVol": 5.0, "THF": 840.0, "MeIm": 160.0},
 
-		{"VolOneBase": 0.100, "DeadVol": 5.0, "MeCN": 500.0, "DCI": 14.76}
+		{"VolOneBase": 0.100, "DeadVol": 5.0, "MeCN": 500.0, "DCI": 14.76},
+
+		{"omxdata": "./omxdata.txt"}
 	     ]
 		
 }
