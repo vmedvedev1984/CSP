@@ -1,0 +1,23 @@
+{"config" : [
+
+
+		{"name": 1, "seqence": 2},
+		
+		{"VolOneBase": 0.080, "DeadVol": 0.5, "Amd": 1.5, "MeCN": 20.0},
+ 		
+		{"VolOneBase": 0.060, "DeadVol": 5.0, "THF": 83.0, "Py": 15.0, "H2O": 2.0, "I2": 0.5},
+
+		{"VolOneBase": 0.100, "DeadVol": 5.0, "MeCN": 50.0, "TET": 2.93},
+
+		{"VolOneBase": 0.170, "DeadVol": 5.0, "DCE": 97.0, "DCA": 3.0},
+
+		{"VolOneBase": 0.110, "DeadVol": 5.0, "THF": 90.0, "Anhydride": 10.0},
+
+		{"VolOneBase": 0.110, "DeadVol": 5.0, "THF": 80.0, "MeIm": 10.0, "Py": 10.0},
+
+		{"VolOneBase": 0.100, "DeadVol": 5.0, "MeCN": 50.0, "DCI": 1.476},
+
+		{"omxdata": "./omxdata.txt"}
+	     ]
+		
+}
