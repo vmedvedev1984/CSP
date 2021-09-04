@@ -9,7 +9,6 @@ import io, os, time, fnmatch, csv, datetime, json
 from os import walk
 
 ConfFileDialog = uic.loadUiType("conffile.ui")[0]
-print(ConfFileDialog)
 
 class QDialogClass(QtWidgets.QDialog, ConfFileDialog):
     def __init__(self, parent=None):
@@ -18,7 +17,8 @@ class QDialogClass(QtWidgets.QDialog, ConfFileDialog):
         with open('config.txt') as json_file:  
             self.data = json.load(json_file)
         self.LoadDefault()
-        self.pushButton_5.clicked.connect(self.LoadDefault)
+        self.pushButton_5.clicked.connect(self.AceptButton)
+        self.pushButton_2.clicked.connect(self.dataFileButton)
 
     def LoadDefault(self):
         #Amidite
@@ -54,12 +54,61 @@ class QDialogClass(QtWidgets.QDialog, ConfFileDialog):
         self.doubleSpinBox_19.setValue(self.data['config'][6]['THF'])
         self.doubleSpinBox_20.setValue(self.data['config'][6]['MeIm'])
         self.doubleSpinBox_21.setValue(self.data['config'][6]['Py'])
+        #print(self.data['config'][9])
+        self.textEdit.setText(str(self.data['config'][9]['protocolfile']))
+        self.textEdit_2.setText(str(self.data['config'][8]['datafile']))
+        self.textEdit_3.setText(str(self.data['config'][10]['omxdata']))
+
+    
+    def dataFileButton(self):
+        self.dataFileName = QFileDialog.getExistingDirectory(self, 'Select a directory')
+        self.textEdit_2.setText(str(self.dataFileName))
+
     
     def RejectButton(self):
         print('Reject')
 
     def AceptButton(self):
-        print(self.data['config'][1]['VolOneBase'])
+        self.data['config'][1]['VolOneBase'] = self.doubleSpinBox.value()
+        self.data['config'][1]['DeadVol'] = self.doubleSpinBox_7.value()
+        self.data['config'][1]['MeCN'] = self.doubleSpinBox_38.value()
+        self.data['config'][1]['Amd'] = self.doubleSpinBox_13.value()
+        #Oxidizer
+        self.data['config'][2]['VolOneBase'] = self.doubleSpinBox_6.value()
+        self.data['config'][2]['DeadVol'] = self.doubleSpinBox_42.value()
+        self.data['config'][2]['THF'] = self.doubleSpinBox_24.value()
+        self.data['config'][2]['Py'] = self.doubleSpinBox_25.value()
+        self.data['config'][2]['H2O'] = self.doubleSpinBox_26.value()
+        self.data['config'][2]['I2'] = self.doubleSpinBox_41.value()
+        #Activator
+        self.data['config'][3]['VolOneBase'] = self.doubleSpinBox_2.value()
+        self.data['config'][3]['DeadVol'] = self.doubleSpinBox_8.value()
+        self.data['config'][3]['MeCN'] = self.doubleSpinBox_40.value()
+        self.data['config'][3]['TET'] = self.doubleSpinBox_14.value()
+        #Deblock
+        self.data['config'][4]['VolOneBase'] = self.doubleSpinBox_3.value()
+        self.data['config'][4]['DeadVol'] = self.doubleSpinBox_9.value()
+        self.data['config'][4]['DCE'] = self.doubleSpinBox_11.value()
+        self.data['config'][4]['DCA'] = self.doubleSpinBox_12.value()
+        #CapA
+        self.data['config'][5]['VolOneBase'] = self.doubleSpinBox_4.value()
+        self.data['config'][5]['DeadVol'] = self.doubleSpinBox_10.value()
+        self.data['config'][5]['THF'] = self.doubleSpinBox_15.value()
+        self.data['config'][5]['Anhydride'] = self.doubleSpinBox_16.value()
+        #CapB
+        self.data['config'][6]['VolOneBase'] = self.doubleSpinBox_5.value()
+        self.data['config'][6]['DeadVol'] = self.doubleSpinBox_39.value()
+        self.data['config'][6]['THF'] = self.doubleSpinBox_19.value()
+        self.data['config'][6]['MeIm'] = self.doubleSpinBox_20.value()
+        self.doubleSpinBox_21.setValue(self.data['config'][6]['Py'])
+        #FilePath
+        self.data['config'][9]['protocolfile'] = self.textEdit.toPlainText()
+        self.data['config'][8]['datafile'] = self.textEdit_2.toPlainText()
+        self.data['config'][10]['omxdata'] = self.textEdit_3.toPlainText()
+        
+        configfile = open("config.txt","w")
+        configfile.writelines('{"config" : ' + str(json.dumps(self.data['config'], sort_keys=True, indent=4)) + '}')
+        configfile.close()
 
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
@@ -69,6 +118,7 @@ class Window(QtWidgets.QMainWindow):
         self.fastalist = []
         with open('config.txt') as json_file:  
             self.data = json.load(json_file)
+        #print(self.data)
         #self.label.setText("NewText")
         self.pushButton_6.clicked.connect(self.prepFa)
         self.pushButton_5.clicked.connect(self.stat)
@@ -110,6 +160,15 @@ class Window(QtWidgets.QMainWindow):
                 sheet.cell(row = tab_row, column = 6).value = self.tableWidget.item(tab_row - 2, 5).text().replace(".", ",")
                 sheet.cell(row = tab_row, column = 7).value = self.tableWidget.item(tab_row - 2, 6).text().replace(".", ",")
             wb.save('./synthes/synthesis ' + str(datetime.date.today()) + '.xlsx')
+            #ПЕРЕЗАПИСЬ OMXDATA ФАЙЛА
+            omxdatafile = open("./omxdatatemp.txt","r+")
+            oligolistnext =omxdatafile.readlines()
+            for olig in range(2, len(self.fastalist) + 2):
+                oligolistnext.append('Oligo:\t' + str(olig - 2) + '\t\t\t\t' + self.tableWidget.item(olig - 2, 1).text() +'\t' + str('Off' if int(self.tableWidget.cellWidget(olig-2, 7).checkState())==2 else 'On') + '\n')
+            oligolistnext.append('##End##\t\t\t\t\t\t\n')
+            omxdatafile = open("./omxdata.txt","r+")
+            omxdatafile.writelines(oligolistnext)
+            omxdatafile.close()
             self.popupwin("Протокол синтеза готов", "Информация")
             '''if self.checkBox_3.isChecked():
                 wb.save('./synthes/synthesis ' + str(datetime.date.today()) + '.xlsx')
@@ -187,7 +246,7 @@ class Window(QtWidgets.QMainWindow):
                 lensheet_range += 1
         else:
             return 0
-        print(XLSopen[2::2])
+        #print(XLSopen[2::2])
         for row in range(len(XLSopen[2::2])):
             self.tableWidget_2.insertRow(row)
             self.tableWidget_2.setItem(row, 0, QtWidgets.QTableWidgetItem(XLSopen[2*row + 2]))
@@ -339,7 +398,7 @@ class Window(QtWidgets.QMainWindow):
                 leight = A + T + C + G
                 lenght_item.append(leight)
                 i=i+1
-        print(self.fastalist)
+        #print(self.fastalist) СДЕЛАТЬ ИСКЛЮЧЕНИЕ НА МОДИФИКАЦИИ
         # ЗАПОЛНЕНИЕ ТАБЛИЦЫ И ЗНАЧЕНИЙ КОЛИЧЕСТВА АМИДИТОВ НА ВЛАДКЕ СИНТЕЗА
         for row in range(len(self.fastalist)):
             self.tableWidget.insertRow(row)
