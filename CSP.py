@@ -10,6 +10,21 @@ from os import walk
 
 ConfFileDialog = uic.loadUiType("conffile.ui")[0]
 
+# ВОЗВРАЩАЕТ МАССИВ ПОДГОТОВЛЕННЫЙ ДЛЯ СНЯТИЯ ПОСЛЕДНЕГО DMT-КАТИОНА  use: lastDMT(oligolist).compare()
+class lastDMT():
+    def __init__(self, seqlist):
+        self.seqlist = seqlist
+
+    def compare(self):
+        lenseq = 0
+        for item in range(len(self.seqlist)):
+            if len(self.seqlist[lenseq]) < len(self.seqlist[item]):
+                lenseq = item
+        for num in range(len(self.seqlist)):
+            self.seqlist[num] = self.seqlist[num][0] + str( (len(self.seqlist[lenseq]) - len(self.seqlist[num])) * ' ') + self.seqlist[num][1:]
+        return(self.seqlist)
+
+#ОКНО НАСТРОЙКИ ПАРАМЕТРОВ СИНТЕЗА
 class QDialogClass(QtWidgets.QDialog, ConfFileDialog):
     def __init__(self, parent=None):
         QtWidgets.QDialog.__init__(self, parent)
@@ -167,6 +182,7 @@ class Window(QtWidgets.QMainWindow):
                 oligolistnext.append('Oligo:\t' + str(olig - 2) + '\t\t\t\t' + self.tableWidget.item(olig - 2, 1).text() +'\t' + str('Off' if int(self.tableWidget.cellWidget(olig-2, 7).checkState())==2 else 'On') + '\n')
             oligolistnext.append('##End##\t\t\t\t\t\t\n')
             omxdatafile = open("./omxdata.txt","r+")
+            omxdatafile.truncate(0)
             omxdatafile.writelines(oligolistnext)
             omxdatafile.close()
             self.popupwin("Протокол синтеза готов", "Информация")
